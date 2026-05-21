@@ -1,4 +1,3 @@
-#Lógica
 from pathlib import Path
 import shutil
 
@@ -6,28 +5,25 @@ def processar_fitas(diretorio, tipo_buscado, numeros_alvo, callback_log):
     caminho = Path(diretorio)
     arquivos_encontrados = []
 
-    # 1. Varredura e Busca
     for arquivo in caminho.iterdir():
         if arquivo.is_file():
             try:
                 with open(arquivo, 'r', encoding='latin-1') as f:
-                    linhas_cabecalho = [next(f, '') for _ in range(10)]
+                    linhas_cabecalho = [next(f, '') for _ in range(50)]
                     conteudo_cabecalho = "".join(linhas_cabecalho)
                     
                     if tipo_buscado in conteudo_cabecalho:
                         for num in numeros_alvo:
-                            if f"MUNI{num}SIGPEC" in conteudo_cabecalho:
+                            if f"{num}SIGPEC" in conteudo_cabecalho:
                                 arquivos_encontrados.append((arquivo, num))
                                 break 
-            except Exception:
-                pass 
+            except Exception as e:
+                callback_log(f"⚠️ Erro ao tentar ler o arquivo {arquivo.name}: {str(e)}\n")
 
-    # 2. Retorno de status caso não encontre nada
     if not arquivos_encontrados:
         callback_log("Nenhum arquivo correspondente foi encontrado nesta pasta.\n")
         return
 
-    # 3. Processamento e Renomeio Automático
     callback_log(f"Foram encontrados {len(arquivos_encontrados)} arquivos:\n\n")
 
     pasta_destino = caminho / "Arquivos_Separados"
